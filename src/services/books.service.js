@@ -41,7 +41,7 @@ async function getFilteredBookIds(filters) {
     // If no filters provided, get all books
     if (conditions.length === 0) {
         const sql = `
-        SELECT DISTINCT b.id
+        SELECT b.id
         FROM books_book b
         ORDER BY b.download_count DESC
         `;
