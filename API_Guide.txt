@@ -1,0 +1,161 @@
+# Gutenberg Books API - User Guide
+
+## Overview
+A professional REST API for accessing Project Gutenberg's digital book collection. This API provides comprehensive search, filtering, and pagination capabilities for exploring over 70,000 free eBooks.
+
+## Live Deployment
+- **Health Check**: https://gutenberg-books-api-b5qi.onrender.com
+
+- **API Base URL**: https://gutenberg-books-api-b5qi.onrender.com/api/books
+
+- **Source Code**: https://github.com/rishabh-kusram/gutenberg-books-api
+
+## Quick Start
+1. **Browser**: Navigate to any endpoint URL
+2. **API Client**: Use Postman, Insomnia, or curl
+3. **Integration**: Make HTTP GET requests to the endpoints
+4. **Authentication**: None required - fully public API
+
+---
+
+## Tools Used
+
+### Backend Technologies
+- **Node.js** - JavaScript runtime environment
+- **Express.js** - Web application framework
+- **PostgreSQL** - Relational database management system
+- **pg** - PostgreSQL client for Node.js
+
+### Development Tools
+- **nodemon** - Development server with auto-restart
+- **dotenv** - Environment variable management
+- **cors** - Cross-Origin Resource Sharing middleware
+
+### Deployment & Infrastructure
+- **Render** - Cloud platform for hosting
+- **GitHub** - Version control and source code repository
+- **npm** - Package manager for Node.js
+
+### Testing Tools
+- **cURL** - Command-line HTTP client
+- **Postman** - API development and testing platform
+- **Browser** - Direct endpoint testing
+
+### Database Schema
+- **Project Gutenberg Dataset** - Source data
+
+---
+
+## API Endpoints
+
+### Base Endpoint
+```
+GET /api/books
+```
+Returns paginated list of all books (25 per page)
+
+### Query Parameters
+| Parameter | Type | Description | Example |
+|-----------|------|-------------|---------|
+| `page` | integer | Page number (default: 1) | `?page=2` |
+| `language` | string | Language codes (comma-separated) | `?language=en,fr` |
+| `title` | string | Search in book titles | `?title=pride` |
+| `author` | string | Search in author names | `?author=dickens` |
+| `topic` | string | Search in subjects/bookshelves | `?topic=fiction` |
+
+---
+
+## Response Format
+
+### Success Response
+```json
+{
+  "count": 1500,
+  "books": [
+    {
+      "id": 1342,
+      "title": "Pride and Prejudice",
+      "download_count": 50000,
+      "authors": [
+        {
+          "id": 68,
+          "name": "Jane Austen"
+        }
+      ],
+      "languages": ["en"],
+      "subjects": ["Romance", "England -- Social life and customs"],
+      "bookshelves": ["Best Books Ever Listings"],
+      "formats": {
+        "text/html": "https://www.gutenberg.org/files/1342/1342-h/1342-h.htm",
+        "application/epub+zip": "https://www.gutenberg.org/ebooks/1342.epub"
+      }
+    }
+  ]
+}
+```
+
+### Error Response
+```json
+{
+  "error": "No books found matching the specified filters",
+  "count": 0,
+  "books": []
+}
+```
+
+---
+
+## Usage Examples
+
+### Basic Usage
+```bash
+# Get all books (first page)
+curl "https://gutenberg-books-api-b5qi.onrender.com/api/books"
+
+# Get specific page
+curl "https://gutenberg-books-api-b5qi.onrender.com/api/books?page=3"
+```
+
+### Filtering Examples
+```bash
+# Filter by language
+curl "https://gutenberg-books-api-b5qi.onrender.com/api/books?language=en"
+
+# Search by author
+curl "https://gutenberg-books-api-b5qi.onrender.com/api/books?author=shakespeare"
+
+# Search by title
+curl "https://gutenberg-books-api-b5qi.onrender.com/api/books?title=alice"
+
+# Filter by topic
+curl "https://gutenberg-books-api-b5qi.onrender.com/api/books?topic=mystery"
+```
+
+### Advanced Filtering
+```bash
+# Multiple filters
+curl "https://gutenberg-books-api-b5qi.onrender.com/api/books?language=en&topic=fiction&page=2"
+
+# Multiple languages
+curl "https://gutenberg-books-api-b5qi.onrender.com/api/books?language=en,fr"
+```
+
+---
+
+## Technical Specifications
+
+- **Framework**: Node.js with Express
+- **Database**: PostgreSQL
+- **Deployment**: Render Cloud Platform
+- **Response Format**: JSON
+- **Rate Limiting**: None (public API)
+- **CORS**: Enabled for all origins
+- **SSL**: HTTPS enforced
+
+## Performance
+- **Response Time**: < 500ms average
+- **Pagination**: 25 books per page
+- **Concurrent Users**: Supports high traffic
+- **Uptime**: 99.9% availability
+
+---

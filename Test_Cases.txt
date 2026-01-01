@@ -1,0 +1,179 @@
+# Gutenberg Books API - Test Cases
+
+## Test Environment
+- Base URL : https://gutenberg-books-api-b5qi.onrender.com/api/books
+- Method : GET requests only
+- Authentication : None required
+
+---
+
+## Test Cases
+
+### 1. Fetch All Books
+**Purpose**: Verify basic API functionality
+**Endpoint**: '/api/books'
+**CURL Command**: 
+
+curl -X GET "https://gutenberg-books-api-b5qi.onrender.com/api/books"
+
+**Expected Result**:
+- HTTP Status: 200 OK
+- Response contains 'count' and 'books' array
+- Books array has up to 25 items
+- Each book has id, title, download_count, authors, languages, subjects, bookshelves, formats
+
+---
+
+### 2. Pagination Test - Page 1
+**Purpose**: Test first page pagination
+**Endpoint**: '/api/books?page=1'
+**CURL Command**: 
+
+curl -X GET "https://gutenberg-books-api-b5qi.onrender.com/api/books?page=1"
+
+**Expected Result**:
+- HTTP Status: 200 OK
+- Returns first 25 books
+- Books sorted by download_count DESC
+
+---
+
+### 3. Pagination Test - Page 2
+**Purpose**: Test second page pagination
+**Endpoint**: '/api/books?page=2'
+**CURL Command**:
+ 
+curl -X GET "https://gutenberg-books-api-b5qi.onrender.com/api/books?page=2"
+ 
+**Expected Result**:
+- HTTP Status: 200 OK
+- Returns different books than page 1
+- Up to 25 books per page
+
+---
+
+### 4. Language Filter Test
+**Purpose**: Filter books by language code
+**Endpoint**: '/api/books?language=en'
+**CURL Command**:
+ 
+curl -X GET "https://gutenberg-books-api-b5qi.onrender.com/api/books?language=en"
+ 
+**Expected Result**:
+- HTTP Status: 200 OK
+- All returned books have "en" in languages array
+- Books are filtered correctly
+
+---
+
+### 5. Author Search Test
+**Purpose**: Search books by author name
+**Endpoint**: '/api/books?author=dickens'
+**CURL Command**:
+ 
+curl -X GET "https://gutenberg-books-api-b5qi.onrender.com/api/books?author=dickens"
+ 
+**Expected Result**:
+- HTTP Status: 200 OK
+- Books by Charles Dickens and related authors
+- Author name contains "dickens" (case-insensitive)
+
+---
+
+### 6. Title Search Test
+**Purpose**: Search books by title
+**Endpoint**: '/api/books?title=pride'
+**CURL Command**:
+ 
+curl -X GET "https://gutenberg-books-api-b5qi.onrender.com/api/books?title=pride"
+ 
+**Expected Result**:
+- HTTP Status: 200 OK
+- Book titles contain "pride" (case-insensitive)
+- Includes "Pride and Prejudice" if available
+
+---
+
+### 7. Topic Filter Test
+**Purpose**: Filter by subject or bookshelf
+**Endpoint**: '/api/books?topic=fiction'
+**CURL Command**:
+ 
+curl -X GET "https://gutenberg-books-api-b5qi.onrender.com/api/books?topic=fiction"
+ 
+**Expected Result**:
+- HTTP Status: 200 OK
+- Books have "fiction" in subjects or bookshelves arrays
+- Topic search is case-insensitive
+
+---
+
+### 8. Combined Filters Test
+**Purpose**: Test multiple filter parameters
+**Endpoint**: '/api/books?language=en&topic=fiction&page=1'
+**CURL Command**:
+ 
+curl -X GET "https://gutenberg-books-api-b5qi.onrender.com/api/books?language=en&topic=fiction&page=1"
+ 
+**Expected Result**:
+- HTTP Status: 200 OK
+- Books match ALL criteria: English language AND fiction topic
+- First page of results
+
+---
+
+### 9. Multiple Languages Test
+**Purpose**: Test comma-separated language codes
+**Endpoint**: '/api/books?language=en,fr'
+**CURL Command**:
+ 
+curl -X GET "https://gutenberg-books-api-b5qi.onrender.com/api/books?language=en,fr"
+ 
+**Expected Result**:
+- HTTP Status: 200 OK
+- Books have either "en" OR "fr" in languages array
+
+---
+
+### 10. Invalid Filter Test
+**Purpose**: Test error handling for invalid filters
+**Endpoint**: '/api/books?language=xyz'
+**CURL Command**:
+ 
+curl -X GET "https://gutenberg-books-api-b5qi.onrender.com/api/books?language=xyz"
+ 
+**Expected Result**:
+- HTTP Status: 404 Not Found
+- Error message: "No books found matching the specified filters"
+- Empty books array
+
+---
+
+### 11. Invalid Endpoint Test
+**Purpose**: Test route handling for non-existent endpoints
+**Endpoint**: '/api/invalid'
+**CURL Command**: 
+
+curl -X GET "https://gutenberg-books-api-b5qi.onrender.com/api/invalid"
+
+**Expected Result**:
+- HTTP Status: 404 Not Found
+- Route not found error
+
+---
+
+### 12. Health Check Test
+**Purpose**: Verify API service is running
+**Endpoint**: '/'
+**CURL Command**:
+ 
+curl -X GET "https://gutenberg-books-api-b5qi.onrender.com/"
+ 
+**Expected Result**:
+- HTTP Status: 200 OK
+- Message: "Gutenberg Books API is running"
+- Status: "OK"
+
+---
+
+*Run these tests to ensure the API is functioning correctly across all scenarios.*
