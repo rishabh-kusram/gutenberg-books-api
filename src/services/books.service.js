@@ -9,51 +9,63 @@ async function getFilteredBookIds(filters) {
         topic
     } = filters;
 
+    // Check if any filters are actually provided (not just empty strings)
+    const hasLanguage = language && language.trim();
+    const hasTitle = title && title.trim();
+    const hasAuthor = author && author.trim();
+    const hasTopic = topic && topic.trim();
+
+    // If no filters provided, get all books
+    if (!hasLanguage && !hasTitle && !hasAuthor && !hasTopic) {
+        const sql = `
+        SELECT b.id
+        FROM books_book b
+        ORDER BY b.download_count DESC
+        `;
+        try {
+            const result = await pool.query(sql);
+            console.log(`Found ${result.rows.length} books in database`);
+            return result.rows.map(r => r.id);
+        } catch (error) {
+            console.error('Error fetching all books:', error.message);
+            throw error;
+        }
+    }
+
     const values = [];
     let i = 1;
 
     // Build dynamic WHERE conditions based on filters
     const conditions = [];
 
-    if (language) {
-        values.push(language.split(","));
+    if (hasLanguage) {
+        values.push(hasLanguage.split(","));
         conditions.push(`l.code = ANY($${i++})`);
     }
 
-    if (title) {
-        values.push(`%${title}%`);
+    if (hasTitle) {
+        values.push(`%${hasTitle}%`);
         conditions.push(`b.title ILIKE $${i++}`);
     }
 
-    if (author) {
-        values.push(`%${author}%`);
+    if (hasAuthor) {
+        values.push(`%${hasAuthor}%`);
         conditions.push(`a.name ILIKE $${i++}`);
     }
 
-    if (topic) {
-        values.push(`%${topic}%`);
+    if (hasTopic) {
+        values.push(`%${hasTopic}%`);
         conditions.push(`(
       s.name ILIKE $${i} OR sh.name ILIKE $${i}
     )`);
         i++;
     }
 
-    // If no filters provided, get all books
-    if (conditions.length === 0) {
-        const sql = `
-        SELECT b.id
-        FROM books_book b
-        ORDER BY b.download_count DESC
-        `;
-        const result = await pool.query(sql);
-        return result.rows.map(r => r.id);
-    }
-
     // Combine all conditions into WHERE clause
     const whereClause = `WHERE ${conditions.join(" AND ")}`;
 
     const sql = `
-    SELECT DISTINCT b.id
+    SELECT DISTINCT b.id, b.download_count
     FROM books_book b
     LEFT JOIN books_book_authors ba ON b.id = ba.book_id
     LEFT JOIN books_author a ON ba.author_id = a.id
@@ -64,6 +76,7 @@ async function getFilteredBookIds(filters) {
     LEFT JOIN books_book_bookshelves bb ON b.id = bb.book_id
     LEFT JOIN books_bookshelf sh ON bb.bookshelf_id = sh.id
     ${whereClause}
+    ORDER BY b.download_count DESC
   `;
 
     const result = await pool.query(sql, values);
@@ -73,6 +86,11 @@ async function getFilteredBookIds(filters) {
 
 // Get paginated book IDs with basic info, sorted by download count
 async function getPaginatedBooks(bookIds, page) {
+    // If no book IDs provided, return empty array
+    if (!bookIds || bookIds.length === 0) {
+        return [];
+    }
+
     const limit = 25;
     const offset = (page - 1) * limit;
 
@@ -96,6 +114,11 @@ async function getPaginatedBooks(bookIds, page) {
 
 // Get complete book details with authors, subjects, bookshelves, formats, and languages
 async function getBookDetails(bookIds) {
+  // If no book IDs provided, return empty array
+  if (!bookIds || bookIds.length === 0) {
+    return [];
+  }
+
   const sql = `
     SELECT
       b.id,
