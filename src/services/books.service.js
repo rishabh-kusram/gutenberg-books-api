@@ -38,9 +38,15 @@ async function getFilteredBookIds(filters) {
         i++;
     }
 
-    // If no filters provided, return empty array
+    // If no filters provided, get all books
     if (conditions.length === 0) {
-        return [];
+        const sql = `
+        SELECT DISTINCT b.id
+        FROM books_book b
+        ORDER BY b.download_count DESC
+        `;
+        const result = await pool.query(sql);
+        return result.rows.map(r => r.id);
     }
 
     // Combine all conditions into WHERE clause
