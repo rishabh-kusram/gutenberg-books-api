@@ -2,6 +2,9 @@
   "name": "gutenberg-books-api",
   "version": "1.0.0",
   "main": "src/app.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js"
@@ -9,7 +12,7 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
+  "description": "A Node.js API for searching Project Gutenberg books",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",

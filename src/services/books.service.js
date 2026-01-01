@@ -38,10 +38,13 @@ async function getFilteredBookIds(filters) {
         i++;
     }
 
+    // If no filters provided, return empty array
+    if (conditions.length === 0) {
+        return [];
+    }
+
     // Combine all conditions into WHERE clause
-    const whereClause = conditions.length
-        ? `WHERE ${conditions.join(" AND ")}`
-        : "";
+    const whereClause = `WHERE ${conditions.join(" AND ")}`;
 
     const sql = `
     SELECT DISTINCT b.id
@@ -85,7 +88,7 @@ async function getPaginatedBooks(bookIds, page) {
 }
 
 
-// Get complete book details with authors, subjects, bookshelves, and formats
+// Get complete book details with authors, subjects, bookshelves, formats, and languages
 async function getBookDetails(bookIds) {
   const sql = `
     SELECT
@@ -104,6 +107,9 @@ async function getBookDetails(bookIds) {
       array_agg(DISTINCT sh.name)
         FILTER (WHERE sh.name IS NOT NULL) AS bookshelves,
 
+      array_agg(DISTINCT l.code)
+        FILTER (WHERE l.code IS NOT NULL) AS languages,
+
       json_object_agg(f.mime_type, f.url)
         FILTER (WHERE f.mime_type IS NOT NULL) AS formats
 
@@ -114,6 +120,8 @@ async function getBookDetails(bookIds) {
     LEFT JOIN books_subject s ON bs.subject_id = s.id
     LEFT JOIN books_book_bookshelves bb ON b.id = bb.book_id
     LEFT JOIN books_bookshelf sh ON bb.bookshelf_id = sh.id
+    LEFT JOIN books_book_languages bl ON b.id = bl.book_id
+    LEFT JOIN books_language l ON bl.language_id = l.id
     LEFT JOIN books_format f ON b.id = f.book_id
 
     WHERE b.id = ANY($1)
@@ -137,7 +145,11 @@ exports.fetchBooks = async (filters) => {
   const count = allBookIds.length;
 
   if (count === 0) {
-    return { count: 0, books: [] };
+    return { 
+      count: 0, 
+      books: [], 
+      message: "No books found matching the specified filters" 
+    };
   }
 
   // Step 2: Apply pagination to get current page book IDs
